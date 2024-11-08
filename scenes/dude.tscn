@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://05unhudpok63"]
+
+[ext_resource type="Texture2D" uid="uid://cdlgvyc7o34s4" path="res://assets/sprites/dude_idle.png" id="1_k27on"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h6fjg"]
+atlas = ExtResource("1_k27on")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p7jhk"]
+atlas = ExtResource("1_k27on")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bm0wd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h6fjg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p7jhk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+y_sort_enabled = true
+sprite_frames = SubResource("SpriteFrames_bm0wd")
+autoplay = "default"
+frame_progress = 0.944633
+offset = Vector2(0, -16)

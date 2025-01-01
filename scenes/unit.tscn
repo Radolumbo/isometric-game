@@ -43,4 +43,5 @@ sprite_frames = SubResource("SpriteFrames_1a3bm")
 autoplay = "default"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14087, 0)
 shape = SubResource("CylinderShape3D_2o5ua")

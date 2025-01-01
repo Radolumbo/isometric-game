@@ -1,9 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://cxf6wo4o8ocvr"]
+[gd_scene load_steps=7 format=3 uid="uid://cxf6wo4o8ocvr"]
 
 [ext_resource type="MeshLibrary" uid="uid://dantes188fxoc" path="res://assets/meshes/level_mesh.tres" id="1_da2bl"]
 [ext_resource type="Script" path="res://scripts/camera_3d.gd" id="5_dr64t"]
 [ext_resource type="Script" path="res://scripts/selector.gd" id="6_4mjvd"]
-[ext_resource type="PackedScene" uid="uid://dg8gi8i6qm1o4" path="res://scenes/unit.tscn" id="6_ewttj"]
 [ext_resource type="Script" path="res://scripts/units.gd" id="6_xuj5e"]
 [ext_resource type="Script" path="res://scripts/party.gd" id="7_jloqi"]
 
@@ -46,6 +45,3 @@ script = ExtResource("6_xuj5e")
 
 [node name="Party" type="Node3D" parent="Units"]
 script = ExtResource("7_jloqi")
-
-[node name="Unit" parent="Units/Party" instance=ExtResource("6_ewttj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.581885, 0)

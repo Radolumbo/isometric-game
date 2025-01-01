@@ -29,8 +29,6 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if hover_set and last_processed_tile != hover_tile:
-		print(hover_tile)
-		print(selected_tile)
 		grid.set_cell_item(last_processed_tile, 1)
 		grid.set_cell_item(hover_tile, 0)
 		last_processed_tile = hover_tile
@@ -73,7 +71,7 @@ func _hover_target(click_position: Vector2) -> void:
 				# wall and have the same problem as above:
 				# That is, it's right between two layers, just
 				# in the X or Z position instead. Decide what to do about this later. 
-				print("no item, probably hitting a wall or something else Avertical")
+				print("no item, probably hitting a wall or something else vertical")
 				return
 
 		else:

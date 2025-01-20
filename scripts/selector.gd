@@ -3,6 +3,7 @@ extends Node3D
 @onready var camera: Camera3D = $"../Camera3D"
 @onready var ray: RayCast3D = $RayCast3D
 @onready var grid: GridMap = $"../GridMap"
+@onready var party: Node3D = $"../Units/Party"
 
 @export var hover_tile: Vector3i
 @export var selected_tile: Vector3i
@@ -19,6 +20,7 @@ extends Node3D
 # changing the tile entirely in order to highlight it...
 # I think a "shader" or spawning a little 2d image in the right
 # spot would make more sense)
+@export var selected_set: bool = false
 @export var last_processed_tile: Vector3i
 
 # Called when the node enters the scene tree for the first time.
@@ -28,10 +30,18 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if hover_set and last_processed_tile != hover_tile:
+	if not selected_set and hover_set and last_processed_tile != hover_tile:
 		grid.set_cell_item(last_processed_tile, 1)
 		grid.set_cell_item(hover_tile, 0)
 		last_processed_tile = hover_tile
+	elif selected_set:
+		grid.set_cell_item(hover_tile, 1)
+		grid.set_cell_item(selected_tile, 0)
+		last_processed_tile = selected_tile
+	# elif not hover_set:
+	# 	grid.set_cell_item(last_processed_tile, 1)
+	# 	grid.set_cell_item(hover_tile, 1)
+	# 	grid.set_cell_item(selected_tile, 1)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -40,7 +50,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		var double_click = event.double_click
 		var button_index = event.button_index
 		# todo: validate tile is selectable
-		selected_tile = hover_tile
+		if selected_set and hover_tile != selected_tile:
+			selected_set = false
+		elif hover_set:
+			selected_set = true
+			selected_tile = hover_tile
+		else:
+			selected_set = false
 
 func _hover_target(click_position: Vector2) -> void:
 	var from = camera.project_ray_origin(click_position)
@@ -52,6 +68,7 @@ func _hover_target(click_position: Vector2) -> void:
 		from, to
 	)
 	var selection = space_state.intersect_ray(ray_query_params)
+	hover_set = false
 	if "collider" in selection:
 		if selection["collider"] == grid:
 			# Subtract .01 from the Y position so that our result is just below the
@@ -71,12 +88,18 @@ func _hover_target(click_position: Vector2) -> void:
 				# wall and have the same problem as above:
 				# That is, it's right between two layers, just
 				# in the X or Z position instead. Decide what to do about this later. 
-				print("no item, probably hitting a wall or something else vertical")
+				# print("no item, probably hitting a wall or something else vertical")
 				return
 
 		else:
-			# Collided with something other than the grid map
-			# TODO: What to do if we're hovering over a unit or something?
+			for u in party.units:
+				if selection["collider"] == u.get_body():
+					var pos = party.get_unit_grid_position(u)
+					hover_tile = pos
+					hover_set = true
+				else:
+					# We hit something else
+					pass
 			pass
 	else:
 		# No collision

@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://dg8gi8i6qm1o4"]
+[gd_scene load_steps=8 format=3 uid="uid://dg8gi8i6qm1o4"]
 
-[ext_resource type="Script" path="res://scripts/unit.gd" id="1_rhb5n"]
+[ext_resource type="Script" path="res://scripts/unit_body.gd" id="1_rhb5n"]
+[ext_resource type="Script" path="res://scripts/unit.gd" id="1_vscch"]
 [ext_resource type="Texture2D" uid="uid://cdlgvyc7o34s4" path="res://assets/sprites/dude_idle.png" id="2_3kjjx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_vjd08"]
@@ -30,6 +31,7 @@ height = 0.279098
 radius = 0.0577561
 
 [node name="Unit" type="Node3D"]
+script = ExtResource("1_vscch")
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="."]
 script = ExtResource("1_rhb5n")

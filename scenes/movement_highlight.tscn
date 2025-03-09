@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3 uid="uid://cduy5yvjildsg"]
+
+[ext_resource type="Texture2D" uid="uid://dtrvdskxddagx" path="res://assets/sprites/movement_highlight.png" id="1_51dyv"]
+[ext_resource type="Texture2D" uid="uid://hcly41gdjqk" path="res://assets/sprites/movement_highlight_hover.png" id="2_2oe7i"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k6wu6"]
+atlas = ExtResource("1_51dyv")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fwguw"]
+atlas = ExtResource("1_51dyv")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7343s"]
+atlas = ExtResource("2_2oe7i")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1qu51"]
+atlas = ExtResource("2_2oe7i")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_t2kq7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k6wu6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fwguw")
+}],
+"loop": true,
+"name": &"default",
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7343s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1qu51")
+}],
+"loop": true,
+"name": &"hover",
+"speed": 3.0
+}]
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D"]
+pixel_size = 0.0078
+sprite_frames = SubResource("SpriteFrames_t2kq7")
+animation = &"hover"
+autoplay = "default"

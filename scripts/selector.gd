@@ -1,13 +1,16 @@
 extends Node3D
 
+var movement_highlight = preload("res://scenes/movement_highlight.tscn")
+
 @onready var camera: Camera3D = $"../Camera3D"
 @onready var ray: RayCast3D = $RayCast3D
 @onready var grid: GridMap = $"../GridMap"
 @onready var party: Node3D = $"../Units/Party"
+@onready var sprite: AnimatedSprite3D = $AnimatedSprite3D
 
 @export var hover_tile: Vector3i
 @export var selected_tile: Vector3i
-# Insanely, it seems that gdscript does not have nullable
+# Insanely, it seems that gdscript does not have nullable primitive
 # types. So we have an extra variable to make sure that hover_tile
 # was actually set to something before we use it (it initializes to 0,0,0 which
 # is a valid position)
@@ -16,45 +19,75 @@ extends Node3D
 # highlight thing, but for now, we're going to use this 
 # to keep track of whether we have activated the highlight
 # on the currently hovered tile 
-# (I think this might not be necessary once we are not
-# changing the tile entirely in order to highlight it...
-# I think a "shader" or spawning a little 2d image in the right
-# spot would make more sense)
 @export var selected_set: bool = false
-@export var last_processed_tile: Vector3i
+# Should be this be managed somewhere else?
+@export var movement_highlights: Dictionary[Vector3i, AnimatedSprite3D] = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
 
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	if not selected_set and hover_set and last_processed_tile != hover_tile:
-		grid.set_cell_item(last_processed_tile, 1)
-		grid.set_cell_item(hover_tile, 0)
-		last_processed_tile = hover_tile
+func _process(_delta: float) -> void:
+	# Show highlight sprite at selected or hovered tile
+	if not selected_set and hover_set:
+		sprite.visible = true
+		# TODO: Remove magic number
+		# (this is raising the sprite up .001 over the gridmap, as a grid mesh
+		# is .25 thick)
+		sprite.position = grid.map_to_local(hover_tile) + Vector3(0, .126, 0)
+		sprite.rotation_degrees = Vector3(90, 0, 0)
 	elif selected_set:
-		grid.set_cell_item(hover_tile, 1)
-		grid.set_cell_item(selected_tile, 0)
-		last_processed_tile = selected_tile
-	# elif not hover_set:
-	# 	grid.set_cell_item(last_processed_tile, 1)
-	# 	grid.set_cell_item(hover_tile, 1)
-	# 	grid.set_cell_item(selected_tile, 1)
+		sprite.visible = true
+		sprite.position = grid.map_to_local(selected_tile) + Vector3(0, .126, 0)
+		sprite.rotation_degrees = Vector3(90, 0, 0)
+		
+		# If a party unit has been selected, show their movement highlight
+		if party.is_unit_selected() and movement_highlights.size() == 0:
+			var selected_unit = party.selected_unit
+			var movement_range = selected_unit.movement_range
+			var pos = party.get_unit_grid_position(selected_unit)
+			for x in range(-movement_range, movement_range + 1):
+				for z in range(-movement_range, movement_range + 1):
+					var new_pos = pos + Vector3i(x, 0, z)
+					if grid.get_cell_item(new_pos) >= 0 and party.get_unit_at_grid_position_if_any(new_pos) == null:
+						var highlight: AnimatedSprite3D = movement_highlight.instantiate()
+						highlight.position = grid.map_to_local(new_pos) + Vector3(0, .126, 0)
+						highlight.rotation_degrees = Vector3(90, 0, 0)
+						grid.add_child(highlight)
+						movement_highlights[new_pos] = highlight
+
+		# Everything I do feels hacky, but this is the best I can come up with
+		# for now. This also is causing the frames to get out of sync,
+		# but I'm not sure how to fix that yet.
+		for k in movement_highlights.keys():
+			if k != hover_tile:
+				if movement_highlights[k].animation != "default":
+					movement_highlights[k].play("default")
+			else: 
+				if movement_highlights[k].animation != "hover":
+					movement_highlights[k].play("hover")
+		
+		
+	else:
+		sprite.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_hover_target(event.position)
-	if event is InputEventMouseButton:
-		var double_click = event.double_click
-		var button_index = event.button_index
-		# todo: validate tile is selectable
+	if event is InputEventMouseButton and event.button_index == 1 and event.is_pressed():
+		# var double_click = event.double_click
+		# var button_index = event.button_index
 		if selected_set and hover_tile != selected_tile:
 			selected_set = false
+			# Clear movement highlights
+			for k in movement_highlights.keys():
+				movement_highlights[k].queue_free()
+			movement_highlights.clear()
 		elif hover_set:
-			selected_set = true
-			selected_tile = hover_tile
+			if party.select_unit_at_position_if_any(hover_tile):
+				selected_set = true
+				selected_tile = hover_tile
 		else:
 			selected_set = false
 
@@ -81,7 +114,6 @@ func _hover_target(click_position: Vector2) -> void:
 			if item >= 0:
 				hover_tile = pos
 				hover_set = true
-				pass
 			else:
 				# This is a weird case -- it means we hit the grid, but we're detecting
 				# no item in the position that we hit. This is likely because we hit a 
@@ -97,10 +129,7 @@ func _hover_target(click_position: Vector2) -> void:
 					var pos = party.get_unit_grid_position(u)
 					hover_tile = pos
 					hover_set = true
-				else:
-					# We hit something else
-					pass
-			pass
+			return
 	else:
 		# No collision
 		pass

@@ -52,6 +52,10 @@ environment = SubResource("Environment_bglkh")
 
 [node name="Selector" type="Node3D" parent="."]
 script = ExtResource("6_4mjvd")
+hover_tile = null
+selected_tile = null
+hover_set = null
+selected_set = null
 
 [node name="RayCast3D" type="RayCast3D" parent="Selector"]
 transform = Transform3D(0.707107, -0.353553, 0.612373, 0, 0.866026, 0.5, -0.707107, -0.353553, 0.612373, 2.0679, 1.8889, 1.71748)

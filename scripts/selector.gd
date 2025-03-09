@@ -45,17 +45,14 @@ func _process(_delta: float) -> void:
 		# If a party unit has been selected, show their movement highlight
 		if party.is_unit_selected() and movement_highlights.size() == 0:
 			var selected_unit = party.selected_unit
-			var movement_range = selected_unit.movement_range
 			var pos = party.get_unit_grid_position(selected_unit)
-			for x in range(-movement_range, movement_range + 1):
-				for z in range(-movement_range, movement_range + 1):
-					var new_pos = pos + Vector3i(x, 0, z)
-					if grid.get_cell_item(new_pos) >= 0 and party.get_unit_at_grid_position_if_any(new_pos) == null:
-						var highlight: AnimatedSprite3D = movement_highlight.instantiate()
-						highlight.position = grid.map_to_local(new_pos) + Vector3(0, .126, 0)
-						highlight.rotation_degrees = Vector3(90, 0, 0)
-						grid.add_child(highlight)
-						movement_highlights[new_pos] = highlight
+			for new_pos in selected_unit.get_moveable_positions(pos):
+				if grid.get_cell_item(new_pos) >= 0:
+					var highlight: AnimatedSprite3D = movement_highlight.instantiate()
+					highlight.position = grid.map_to_local(new_pos) + Vector3(0, .126, 0)
+					highlight.rotation_degrees = Vector3(90, 0, 0)
+					grid.add_child(highlight)
+					movement_highlights[new_pos] = highlight
 
 		# Everything I do feels hacky, but this is the best I can come up with
 		# for now. This also is causing the frames to get out of sync,
@@ -80,16 +77,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		# var button_index = event.button_index
 		if selected_set and hover_tile != selected_tile:
 			selected_set = false
-			# Clear movement highlights
-			for k in movement_highlights.keys():
-				movement_highlights[k].queue_free()
-			movement_highlights.clear()
 		elif hover_set:
 			if party.select_unit_at_position_if_any(hover_tile):
 				selected_set = true
 				selected_tile = hover_tile
 		else:
 			selected_set = false
+
+		if not selected_set:
+			# Clear movement highlights
+			for k in movement_highlights.keys():
+				movement_highlights[k].queue_free()
+			movement_highlights.clear()
 
 func _hover_target(click_position: Vector2) -> void:
 	var from = camera.project_ray_origin(click_position)
